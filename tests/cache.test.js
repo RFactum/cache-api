@@ -3,9 +3,18 @@ const {
   getCacheByKey,
   getAllCachedKeys,
   newCacheData,
+  insertOrUpdate,
+  deleteAll,
+  deleteByKey,
 } = require('../src/services/cache');
-const { setupDatabase, cacheOne, cacheTwo } = require('./fixtures/db');
+const {
+  setupDatabase,
+  cacheOne,
+  cacheTwo,
+  cacheThree,
+} = require('./fixtures/db');
 const Cache = require('../src/models/cache');
+const cache = require('../src/services/cache');
 
 describe('Cache Service', () => {
   beforeEach(setupDatabase);
@@ -47,15 +56,64 @@ describe('Cache Service', () => {
     test('Should return the new data and key added to the cache', async () => {
       const result = await newCacheData('cache3');
 
-      const cacheThree = await Cache.findOne({ key: 'cache3' });
+      const newCache = await Cache.findOne({ key: 'cache3' });
       expect({ key: result.key, data: result.data }).toEqual({
-        key: cacheThree.key,
-        data: cacheThree.data,
+        key: newCache.key,
+        data: newCache.data,
       });
     });
 
     test('Should throw an error of invalid key', async () => {
       expect(newCacheData()).rejects.toEqual(new Error('Invalid key'));
+    });
+  });
+
+  describe('insertOrUpdate', () => {
+    test('Should add new cache to the DB', async () => {
+      await insertOrUpdate(cacheThree);
+      const addedCache = await Cache.findOne({ key: cacheThree.key });
+      expect(addedCache).not.toBeNull();
+    });
+
+    test('Should update the cache data of cacheOne', async () => {
+      await insertOrUpdate({
+        key: cacheOne.key,
+        data: 'new Data',
+      });
+      const updatedCache = await Cache.findOne({ key: cacheOne.key });
+      expect(updatedCache.data).toEqual('new Data');
+    });
+
+    test('Should throw an error', async () => {
+      expect(insertOrUpdate()).rejects.toThrow();
+    });
+  });
+
+  describe('deleteAll', () => {
+    test('Should delete all cached data', async () => {
+      await deleteAll();
+      const result = await Cache.count();
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('deleteByKey', () => {
+    test('Should delete cacheOne and return true', async () => {
+      const result = await deleteByKey(cacheOne.key);
+      expect(result).toBe(true);
+
+      const deletedCache = await Cache.findOne({ key: cacheOne.key });
+      expect(deletedCache).toBeNull();
+    });
+
+    test('Should return false', async () => {
+      const result = await deleteByKey('notKey');
+      expect(result).toBe(false);
+    });
+
+    test('Should return false', async () => {
+      const result = await deleteByKey();
+      expect(result).toBe(false);
     });
   });
 });

@@ -11,6 +11,11 @@ const cacheTwo = {
   data: 'cache two data',
 };
 
+const cacheThree = {
+  key: 'cache2',
+  data: 'cache two data',
+};
+
 const setupDatabase = async () => {
   await Cache.deleteMany();
   await new Cache(cacheOne).save();
@@ -21,4 +26,5 @@ module.exports = {
   setupDatabase,
   cacheOne,
   cacheTwo,
+  cacheThree,
 };

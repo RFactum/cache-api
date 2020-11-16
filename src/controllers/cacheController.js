@@ -54,6 +54,11 @@ const deleteByKey = async (req, res) => {
   try {
     const result = await cacheService.deleteByKey(req.params.key);
     if (!result) {
+      /**
+       * Showing that the key was not found based on the idea that this cache API would be
+       * an internal API, therefore exposing it to the outside would be helpful for the
+       * developers using it and not harmful for the API
+       */
       return res.send(404).send();
     }
     return res.send();
