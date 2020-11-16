@@ -113,9 +113,31 @@ const insertNewData = async (cache) => {
   }
 };
 
+const deleteAll = async () => {
+  try {
+    await Cache.deleteMany();
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+const deleteByKey = async (cache) => {
+  try {
+    const cacheDeleted = await Cache.remove({ key: cache });
+    if (cacheDeleted.deletedCount === 0) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
 module.exports = {
   getCacheByKey,
   newCacheData,
   getAllCachedKeys,
   insertOrUpdate,
+  deleteAll,
+  deleteByKey,
 };

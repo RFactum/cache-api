@@ -41,9 +41,26 @@ const insertUpdateData = async (req, res) => {
   }
 };
 
-const deleteAllCaches = async (req, res) => {};
+const deleteAllCaches = async (req, res) => {
+  try {
+    await cacheService.deleteAll();
+    return res.send();
+  } catch (e) {
+    return res.status(500).send();
+  }
+};
 
-const deleteByKey = async (req, res) => {};
+const deleteByKey = async (req, res) => {
+  try {
+    const result = await cacheService.deleteByKey(req.params.key);
+    if (!result) {
+      return res.send(404).send();
+    }
+    return res.send();
+  } catch (e) {
+    res.status(500).send();
+  }
+};
 
 module.exports = {
   getCachedData,
