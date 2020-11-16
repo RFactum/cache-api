@@ -7,6 +7,12 @@ const getCacheByKey = async (key) => {
     throw new Error('Key not found');
   }
 
+  const stillAlive = await handleTimeToLive(cachedData);
+
+  if (!stillAlive) {
+    throw new Error('Invalid cache');
+  }
+
   return cachedData;
 };
 
@@ -45,6 +51,19 @@ const handleCachedEntriesNumber = async () => {
     } catch (e) {
       throw new Error(e);
     }
+  }
+};
+
+const handleTimeToLive = async (cache) => {
+  const cacheLastUpdate = new Date(cache.updatedAt).getTime();
+  const now = new Date().getTime();
+
+  if (now - cacheLastUpdate > process.env.TIME_TO_LIVE) {
+    await Cache.remove(cache);
+    return false;
+  } else {
+    await cache.save();
+    return true;
   }
 };
 
