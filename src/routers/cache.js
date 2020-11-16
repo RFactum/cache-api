@@ -3,6 +3,7 @@ const cacheController = require('../controllers/cacheController');
 
 const router = express.Router();
 
-router.get('/', cacheController.getCachedData);
+router.get('/cache/keys', cacheController.getCachedKeys);
+router.get('/cache/:key', cacheController.getCachedData);
 
 module.exports = router;
