@@ -3,7 +3,10 @@ const cacheController = require('../controllers/cacheController');
 
 const router = express.Router();
 
-router.get('/cache/keys', cacheController.getCachedKeys);
+router.get('/caches', cacheController.getCachedKeys);
 router.get('/cache/:key', cacheController.getCachedData);
+router.post('/cache', cacheController.insertUpdateData);
+router.delete('/caches', cacheController.deleteAllCaches);
+router.delete('/cache/:key', cacheController.deleteByKey);
 
 module.exports = router;

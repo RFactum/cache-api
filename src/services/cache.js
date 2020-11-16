@@ -79,8 +79,43 @@ const createRandomData = () => {
   );
 };
 
+const insertOrUpdate = async (cache) => {
+  try {
+    const result = await Cache.findOne({ key: cache.key });
+
+    if (!result) {
+      return await insertNewData(cache);
+    }
+
+    return await updateCachedData(result, cache.data);
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+const updateCachedData = async (cache, newData) => {
+  cache.data = newData;
+  try {
+    await cache.save();
+    return false;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+const insertNewData = async (cache) => {
+  try {
+    await handleCachedEntriesNumber();
+    await new Cache({ key: cache.key, data: cache.data }).save();
+    return true;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
 module.exports = {
   getCacheByKey,
   newCacheData,
   getAllCachedKeys,
+  insertOrUpdate,
 };
