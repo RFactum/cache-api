@@ -16,6 +16,7 @@ const getAllCachedKeys = async () => {
 };
 
 const newCacheData = async (key) => {
+  await handleCachedEntriesNumber();
   const data = createRandomData();
   const cachedData = {
     key,
@@ -26,6 +27,24 @@ const newCacheData = async (key) => {
     return cachedData;
   } catch (e) {
     throw new Error(e);
+  }
+};
+
+/**
+ * Get the oldest entry based on updatedAt value and delete this entry to allow new ones to
+ * be added to the cache. The updatedAt value was selected to determine which entry to delete
+ * because this value is also used to control Time to Live on this API, therefore everytime a
+ * cache is get or updated the updatedAt value will also be updated
+ */
+const handleCachedEntriesNumber = async () => {
+  const cachedEntries = await Cache.count();
+  if (cachedEntries == process.env.CACHE_ENTRIES_LIMIT) {
+    try {
+      const olderCache = await Cache.find().sort({ updatedAt: 1 }).limit(1);
+      await Cache.remove(olderCache[0]);
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 };
 
