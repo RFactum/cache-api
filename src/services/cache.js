@@ -22,12 +22,17 @@ const getAllCachedKeys = async () => {
 };
 
 const newCacheData = async (key) => {
+  if (!key) {
+    throw new Error('Invalid key');
+  }
+
   await handleCachedEntriesNumber();
   const data = createRandomData();
   const cachedData = {
     key,
     data,
   };
+
   try {
     await new Cache(cachedData).save();
     return cachedData;

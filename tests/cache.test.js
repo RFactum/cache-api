@@ -1,6 +1,11 @@
 const app = require('../src/app');
-const { getCacheByKey, getAllCachedKeys } = require('../src/services/cache');
+const {
+  getCacheByKey,
+  getAllCachedKeys,
+  newCacheData,
+} = require('../src/services/cache');
 const { setupDatabase, cacheOne, cacheTwo } = require('./fixtures/db');
+const Cache = require('../src/models/cache');
 
 describe('Cache Service', () => {
   beforeEach(setupDatabase);
@@ -35,6 +40,22 @@ describe('Cache Service', () => {
       expect(result.length).toBe(2);
       expect(result[0].key).toEqual(cacheOne.key);
       expect(result[1].key).toEqual(cacheTwo.key);
+    });
+  });
+
+  describe('newCacheData', () => {
+    test('Should return the new data and key added to the cache', async () => {
+      const result = await newCacheData('cache3');
+
+      const cacheThree = await Cache.findOne({ key: 'cache3' });
+      expect({ key: result.key, data: result.data }).toEqual({
+        key: cacheThree.key,
+        data: cacheThree.data,
+      });
+    });
+
+    test('Should throw an error of invalid key', async () => {
+      expect(newCacheData()).rejects.toEqual(new Error('Invalid key'));
     });
   });
 });
